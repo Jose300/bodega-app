@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>@yield('title', 'Dashboard') - {{ config('app.name') }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- CSS files -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     
     <style>
         @import url('https://rsms.me/inter/inter.css');
@@ -84,14 +86,48 @@
                                 <span class="nav-link-title">Clientes</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
+                        @canany(['ver-usuarios', 'ver-roles', 'ver-permisos', 'gestionar-configuracion'])
+                        <li class="nav-item dropdown {{ request()->is('configuracion*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#navbar-config" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                                 <span class="nav-link-icon">
                                     <i class="ti ti-settings"></i>
                                 </span>
                                 <span class="nav-link-title">Configuración</span>
                             </a>
+                            <div class="dropdown-menu {{ request()->is('configuracion*') ? 'show' : '' }}">
+                                <div class="dropdown-menu-columns">
+                                    <div class="dropdown-menu-column">
+                                        @can('ver-usuarios')
+                                        <a class="dropdown-item {{ request()->is('configuracion/usuarios*') ? 'active' : '' }}" href="{{ route('usuarios.index') }}">
+                                            <span class="nav-link-icon d-md-none d-lg-inline-block me-2">
+                                                <i class="ti ti-users"></i>
+                                            </span>
+                                            Usuarios
+                                        </a>
+                                        @endcan
+                                        
+                                        @can('ver-roles')
+                                        <a class="dropdown-item {{ request()->is('configuracion/roles*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+                                            <span class="nav-link-icon d-md-none d-lg-inline-block me-2">
+                                                <i class="ti ti-shield-lock"></i>
+                                            </span>
+                                            Roles
+                                        </a>
+                                        @endcan
+                                        
+                                        @can('ver-permisos')
+                                        <a class="dropdown-item {{ request()->is('configuracion/permisos*') ? 'active' : '' }}" href="{{ route('permisos.index') }}">
+                                            <span class="nav-link-icon d-md-none d-lg-inline-block me-2">
+                                                <i class="ti ti-key"></i>
+                                            </span>
+                                            Permisos
+                                        </a>
+                                        @endcan
+                                    </div>
+                                </div>
+                            </div>
                         </li>
+                        @endcanany
                     </ul>
                 </div>
             </div>
@@ -104,32 +140,6 @@
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    <div class="navbar-nav flex-row order-md-last">
-                        <div class="nav-item dropdown d-none d-md-flex me-3">
-                            <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
-                                <i class="ti ti-bell"></i>
-                                <span class="badge bg-red"></span>
-                            </a>
-                        </li>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                                <span class="avatar avatar-sm" style="background-image: url('https://ui-avatars.com/api/?name={{ auth()->user()->name }}')"></span>
-                                <div class="d-none d-xl-block ps-2">
-                                    <div>{{ auth()->user()->name }}</div>
-                                    <div class="mt-1 small text-secondary">Administrador</div>
-                                </div>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <a href="#" class="dropdown-item">Perfil</a>
-                                <a href="#" class="dropdown-item">Ajustes</a>
-                                <div class="dropdown-divider"></div>
-                                <form action="{{ route('logout') }}" method="post">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                     <div class="collapse navbar-collapse" id="navbar-menu">
                         <div>
                             <form action="./" method="get" autocomplete="off" novalidate>
@@ -142,9 +152,59 @@
                             </form>
                         </div>
                     </div>
+                    <div class="navbar-nav flex-row ms-auto">
+                        <div class="nav-item dropdown d-none d-md-flex me-3">
+                            <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
+                                <i class="ti ti-bell fs-2"></i>
+                                <span class="badge bg-red badge-notification"></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Notificaciones</h3>
+                                    </div>
+                                    <div class="list-group list-group-flush list-group-hoverable">
+                                        <div class="list-group-item">
+                                            <div class="text-secondary">No hay notificaciones nuevas.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu" aria-expanded="false">
+                                <div class="d-none d-xl-block pe-2 text-end">
+                                    <div class="fw-bold text-uppercase">{{ auth()->user()->name }}</div>
+                                    <div class="mt-1 small text-uppercase text-info fw-bold" style="font-size: 0.65rem;">
+                                        {{ auth()->user()->getRoleNames()->first() ?? 'Usuario' }}
+                                    </div>
+                                </div>
+                                <span class="avatar avatar-sm rounded-circle fw-bold text-info border border-info border-2 bg-white" 
+                                      style="font-size: 0.7rem;">
+                                    {{ collect(explode(' ', auth()->user()->name))->map(fn($n) => $n[0])->take(2)->join('') }}
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow shadow-sm border-0 p-3" style="min-width: 200px;">
+                                <div class="text-center mb-3">
+                                    <div class="fw-bold fs-3">{{ auth()->user()->name }}</div>
+                                    <div class="text-secondary small">{{ auth()->user()->email }}</div>
+                                    <div class="mt-2 text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                                        ROLE: {{ auth()->user()->getRoleNames()->first() ?? 'ADMINISTRADOR' }}
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <form action="{{ route('logout') }}" method="post" id="logout-form">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item py-2">
+                                        <i class="ti ti-power text-danger me-2 fs-2"></i>
+                                        <span class="fs-3">Cerrar Sesión</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                 </div>
             </header>
-            
+
             <div class="page-body">
                 <div class="container-xl">
                     @yield('content')
@@ -169,8 +229,39 @@
         </div>
     </div>
     
-    <!-- Tabler Core -->
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js" defer></script>
+    <!-- Libs JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('js')
+    
+    @if(request()->is('configuracion/usuarios*'))
+        <script src="{{ asset('js/users.js') }}"></script>
+    @endif
+    @if(request()->is('configuracion/roles*'))
+        <script src="{{ asset('js/roles.js') }}"></script>
+    @endif
+
+    <script>
+        // Global SweetAlert Handler for Flash Messages
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: '¡Hecho!',
+                text: "{{ session('success') }}",
+                timer: 3000,
+                showConfirmButton: false,
+                confirmButtonColor: '#206bc4'
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#d63939'
+            });
+        @endif
+    </script>
 </body>
 </html>

@@ -10,8 +10,18 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth')->name('dashboard');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Configuración
+    Route::prefix('configuracion')->group(function () {
+        Route::resource('usuarios', App\Http\Controllers\Config\UsersController::class)->names('usuarios');
+        Route::resource('roles', App\Http\Controllers\Config\RolesController::class)->names('roles');
+        Route::get('/permisos', [App\Http\Controllers\Config\PermissionsController::class, 'index'])->name('permisos.index');
+        Route::post('/permisos/toggle', [App\Http\Controllers\Config\PermissionsController::class, 'toggle'])->name('permisos.toggle');
+    });
+});

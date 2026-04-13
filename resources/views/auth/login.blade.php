@@ -12,7 +12,7 @@
                 <label class="form-label">Correo Electrónico</label>
                 <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="tu@email.com" value="{{ old('email') }}" required autofocus>
                 @error('email')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
             <div class="mb-2">
@@ -30,13 +30,13 @@
                         </a>
                     </span>
                     @error('password')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
             <div class="mb-2">
                 <label class="form-check">
-                    <input type="checkbox" name="remember" class="form-check-input"/>
+                    <input type="checkbox" name="remember" class="form-check-input" />
                     <span class="form-check-label">Recordarme en este equipo</span>
                 </label>
             </div>
@@ -47,21 +47,7 @@
             </div>
         </form>
     </div>
-    <div class="hr-text">o ingresa con</div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col">
-                <a href="#" class="btn w-100">
-                    <i class="ti ti-brand-github me-2 text-github"></i> Github
-                </a>
-            </div>
-            <div class="col">
-                <a href="#" class="btn w-100">
-                    <i class="ti ti-brand-google me-2 text-google"></i> Google
-                </a>
-            </div>
-        </div>
-    </div>
+
 </div>
 {{-- <div class="text-center text-secondary mt-3">
     ¿Aún no tienes cuenta? <a href="./sign-up.html" tabindex="-1">Regístrate</a>
@@ -80,7 +66,7 @@
                 // toggle the type attribute
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
-                
+
                 // toggle the eye / eye-off icon
                 if (type === 'text') {
                     toggleIcon.classList.remove('ti-eye');
