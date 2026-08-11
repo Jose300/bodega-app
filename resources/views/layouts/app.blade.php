@@ -33,7 +33,7 @@
                 </button>
                 <div class="navbar-brand navbar-brand-autodark">
                     <a href="{{ url('/') }}">
-                        @include('components.logo')
+                        @include('components.logo', ['height' => '45px'])
                     </a>
                 </div>
                 
@@ -218,7 +218,7 @@
                             <ul class="list-inline list-inline-dots mb-0">
                                 <li class="list-inline-item">
                                     Copyright &copy; {{ date('Y') }}
-                                    <a href="." class="link-secondary">Bodega App</a>.
+                                    <a href="." class="link-secondary">{{ config('app.name', 'Rectificadora Artigas') }}</a>.
                                     Todos los derechos reservados.
                                 </li>
                             </ul>
