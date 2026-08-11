@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>@yield('title', 'Iniciar Sesión') - {{ config('app.name', 'Rectificadora Artigas') }}</title>
+    <title>@yield('title', 'Bodega App') - {{ config('app.name') }}</title>
     
     <!-- CSS files -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
@@ -28,8 +28,8 @@
     <div class="page page-center">
         <div class="container container-tight py-4">
             <div class="text-center mb-4">
-                <a href="{{ url('/') }}" class="d-inline-block">
-                    @include('components.logo', ['height' => '120px'])
+                <a href="." class="navbar-brand navbar-brand-autodark">
+                    @include('components.logo')
                 </a>
             </div>
             @yield('content')
